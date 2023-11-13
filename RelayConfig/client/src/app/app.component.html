@@ -12,7 +12,6 @@
           <p *ngIf="ipaddress.errors ['pattern']">Invalid IP Address</p>
         </div>
       </mat-form-field>
-
       <mat-form-field>
         <mat-label for="port">Port</mat-label>
         <input matInput id="port" type="text" placeholder="Port" formControlName="port">
@@ -24,7 +23,7 @@
         </div>
       </mat-form-field>
 
-      <button mat-raised-button (click)="onConnectionConfig" color="primary">Connect</button>
+      <button mat-raised-button (click)="onConnectionConfig()" color="primary">Connect</button>
     </form>
   </mat-card-content>
 </mat-card>
@@ -57,7 +56,7 @@
         </mat-button-toggle-group>
       </div>
       <div>
-        <button mat-raised-button (click)="onRelayConfig" color="primary" class="relayConfigButton">Configure</button>
+        <button mat-raised-button (click)="onRelayConfig()" color="primary" class="relayConfigButton">Configure</button>
       </div>
 
     </form>

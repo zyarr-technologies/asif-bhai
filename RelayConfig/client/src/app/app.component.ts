@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, ValidatorFn } from '@angular/forms';
 import { Validators } from '@angular/forms';
+import { ApiService } from './app.service';
+import { IPAddressType, RelayConfigType } from './app.model';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +24,8 @@ export class AppComponent {
     relay4: 'off'
   });
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder,
+    private apiService: ApiService) {
   }
 
   get ipaddress(): FormControl {
@@ -34,11 +37,13 @@ export class AppComponent {
   }
 
   onConnectionConfig() {
-    console.log('Your form data : ', this.connectionConfig.value);
+    this.apiService.connect<IPAddressType>(this.connectionConfig.value as IPAddressType)
+      .subscribe(result => { console.log(result) });
   }
 
   onRelayConfig() {
-    console.log('Your form data : ', this.relayConfig.value);
+    this.apiService.relay_config<RelayConfigType>(this.relayConfig.value as RelayConfigType)
+      .subscribe(result => { console.log(result) });
   }
 
 }
