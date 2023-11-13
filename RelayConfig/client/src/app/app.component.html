@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card disabled>
   <mat-card-header>
     <mat-card-title>Configuration </mat-card-title>
   </mat-card-header>
@@ -23,8 +23,12 @@
         </div>
       </mat-form-field>
 
-      <button mat-raised-button (click)="onConnectionConfig()" color="primary">Connect</button>
+
+      <button mat-raised-button [disabled]="isConnected" (click)="onOpenConnection()" color="primary">Connect</button>
+      <button mat-raised-button [disabled]="!isConnected" (click)="onCloseConnection()"
+        color="primary">Disconnect</button>
     </form>
+
   </mat-card-content>
 </mat-card>
 <mat-card>
@@ -56,9 +60,9 @@
         </mat-button-toggle-group>
       </div>
       <div>
-        <button mat-raised-button (click)="onRelayConfig()" color="primary" class="relayConfigButton">Configure</button>
+        <button mat-raised-button [disabled]="!isConnected" (click)="onRelayConfig()" color="primary"
+          class="relayConfigButton">Configure</button>
       </div>
-
     </form>
 
   </mat-card-content>

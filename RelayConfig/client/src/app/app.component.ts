@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormControl, ValidatorFn } from '@angular
 import { Validators } from '@angular/forms';
 import { ApiService } from './app.service';
 import { IPAddressType, RelayConfigType } from './app.model';
+import { disconnect } from 'node:process';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import { IPAddressType, RelayConfigType } from './app.model';
 })
 export class AppComponent {
   title = 'client';
+  isConnected = false;
 
   connectionConfig = this.formBuilder.group({
     ipaddress: ['', [Validators.required, Validators.pattern('(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)')]],
@@ -26,7 +28,9 @@ export class AppComponent {
 
   constructor(private formBuilder: FormBuilder,
     private apiService: ApiService) {
+    this.relayConfig.disable()
   }
+
 
   get ipaddress(): FormControl {
     return this.connectionConfig.get("ipaddress") as FormControl;
@@ -36,9 +40,36 @@ export class AppComponent {
     return this.connectionConfig.get("port") as FormControl;
   }
 
-  onConnectionConfig() {
+  controlOnConnection() {
+    this.isConnected = true;
+    this.relayConfig.enable()
+    this.connectionConfig.get("ipaddress")?.disable();
+    this.connectionConfig.get("port")?.disable();
+  }
+
+  controlOnDisconnection() {
+    this.isConnected = false;
+    this.relayConfig.disable()
+    this.connectionConfig.get("ipaddress")?.enable();
+    this.connectionConfig.get("port")?.enable();
+  }
+
+  onOpenConnection() {
     this.apiService.connect<IPAddressType>(this.connectionConfig.value as IPAddressType)
-      .subscribe(result => { console.log(result) });
+      .subscribe(result => {
+        console.log(result)
+        console.log("Connected............")
+        this.controlOnConnection();
+      });
+  }
+
+  onCloseConnection() {
+    this.apiService.disconnect<IPAddressType>(this.connectionConfig.value as IPAddressType)
+      .subscribe(result => {
+        console.log(result)
+        console.log("Disconnected............")
+        this.controlOnDisconnection();
+      });
   }
 
   onRelayConfig() {

@@ -20,6 +20,10 @@ export class ApiService {
     return this.http.post<IPAddressType>(this.apiUrl + '/connect', ipAddressInfo, httpOptions)
   }
 
+  disconnect<IPAddressType>(ipAddressInfo: IPAddressType) {
+    return this.http.post<IPAddressType>(this.apiUrl + '/disconnect', ipAddressInfo, httpOptions)
+  }
+
   relay_config<RelayConfigType>(relayConfig: RelayConfigType) {
     return this.http.post<RelayConfigType>(this.apiUrl + '/relayconfig', relayConfig, httpOptions)
   }
