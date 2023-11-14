@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, ValidatorFn } from '@angular/forms';
+import { FormBuilder, FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { ApiService } from './app.service';
 import { IPAddressType, RelayConfigType } from './app.model';
-import { disconnect } from 'node:process';
 
 @Component({
   selector: 'app-root',
@@ -55,7 +54,7 @@ export class AppComponent {
   }
 
   onOpenConnection() {
-    this.apiService.connect<IPAddressType>(this.connectionConfig.value as IPAddressType)
+    this.apiService.connect(this.connectionConfig.value as IPAddressType)
       .subscribe(result => {
         console.log(result)
         console.log("Connected............")
@@ -64,7 +63,7 @@ export class AppComponent {
   }
 
   onCloseConnection() {
-    this.apiService.disconnect<IPAddressType>(this.connectionConfig.value as IPAddressType)
+    this.apiService.disconnect(this.connectionConfig.value as IPAddressType)
       .subscribe(result => {
         console.log(result)
         console.log("Disconnected............")
@@ -73,7 +72,7 @@ export class AppComponent {
   }
 
   onRelayConfig() {
-    this.apiService.relay_config<RelayConfigType>(this.relayConfig.value as RelayConfigType)
+    this.apiService.relay_config(this.relayConfig.value as RelayConfigType)
       .subscribe(result => { console.log(result) });
   }
 
