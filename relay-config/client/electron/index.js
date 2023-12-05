@@ -106,7 +106,6 @@ ipcMain.on("disconnect", (event, ...arg) => {
 })
 
 ipcMain.on("relayconfig", (event, ...arg) => {
-    console.log("relayconfig" + arg);
     //if (!tcpClient.closed) {
     if (remotePort != 0 && remoteAddr != "") {
         //var data = JSON.parse(arg)
@@ -120,7 +119,7 @@ ipcMain.on("relayconfig", (event, ...arg) => {
             if (err) {
                 console.error(`Failed to send packet to => ${remotePort}:${remotePort}`)
             } else {
-                console.log(`Sending relay config to server => ${remotePort}:${remotePort}`)
+                console.log(`Sending relay config:  ${data} => ${remotePort}:${remotePort}`)
                 udpClient.on("acknowledgement", (message, info) => {
                     console.log(`Acknowledgement from:  => ${remotePort}:${remotePort}`)
                     udpClient.close()
