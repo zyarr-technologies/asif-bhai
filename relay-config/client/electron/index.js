@@ -113,7 +113,6 @@ ipcMain.on("relayconfig", (event, ...arg) => {
         //var dataBuffer = new Buffer.from(JSON.stringify(data));
         var data = arg[0]
         var dataBuffer = new Buffer.from(data);
-        console.log(dataBuffer)
 
         //tcpClient.write(dataBuffer);
         const udpClient = dgram.createSocket('udp4');
