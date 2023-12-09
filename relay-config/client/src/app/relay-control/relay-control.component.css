@@ -1,0 +1,6 @@
+.relay-group {
+    flex: 1;
+    flex-flow: row;
+    margin: 10px;
+    vertical-align: bottom;
+}

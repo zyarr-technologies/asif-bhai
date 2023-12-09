@@ -27,16 +27,11 @@ mat-card {
     gap: 10px;
 }
 
-.schedulingForm {
+.scheduleConfigForm {
     display: flex;
 }
 
-.relay-group {
-    flex: 1;
-    margin: 10px;
-    /* Adjust the margin as needed for spacing */
-}
-
-.time-control {
-    max-width: 120px
+.config-button {
+    width: 90px;
+    margin: 5px;
 }

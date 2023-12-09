@@ -12,7 +12,7 @@ import { RelayControlComponent } from './relay-control/relay-control.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'client';
+  title = 'Relay Configuration';
   isConnected = false;
 
   connectionConfig = this.formBuilder.group({
@@ -27,29 +27,26 @@ export class AppComponent {
     relay4: 'off'
   });
 
-  // Define relay controls for each relay
+  subscriptions: Subscription[] = [];
 
-
-  private subscriptions: Subscription[] = [];
-
-  scheduling!: FormGroup;
+  schedule!: FormGroup;
   relayScheduleControls: { formGroup: FormGroup; name: string }[] = [];;
 
   constructor(
     private formBuilder: FormBuilder,
     private readonly ipc: AppService) {
 
-    this.scheduling = this.formBuilder.group({
-      relay1: this.createRelayControl(),
-      relay2: this.createRelayControl(),
-      relay3: this.createRelayControl(),
-      relay4: this.createRelayControl(),
+    this.schedule = this.formBuilder.group({
+      relay1: this.relayScheduleCreateControls(),
+      relay2: this.relayScheduleCreateControls(),
+      relay3: this.relayScheduleCreateControls(),
+      relay4: this.relayScheduleCreateControls(),
     });
 
     // Initialize relayControls
     for (let i = 1; i <= 4; i++) {
       this.relayScheduleControls.push({
-        formGroup: this.scheduling.get(`relay${i}`) as FormGroup,
+        formGroup: this.schedule.get(`relay${i}`) as FormGroup,
         name: `Relay ${i}`
       });
     }
@@ -68,7 +65,7 @@ export class AppComponent {
   private controlOnConnection() {
     this.isConnected = true;
     this.relayConfig.enable()
-    this.enableRelaySchedule()
+    this.relayScheduleEnable()
     this.connectionConfig.get("ipaddress")?.disable();
     this.connectionConfig.get("port")?.disable();
   }
@@ -76,7 +73,7 @@ export class AppComponent {
   private controlOnDisconnection() {
     this.isConnected = false;
     this.relayConfig.disable()
-    this.disableRelaySchedule()
+    this.relayScheduleDisable()
     this.connectionConfig.get("ipaddress")?.enable();
     this.connectionConfig.get("port")?.enable();
   }
@@ -98,35 +95,35 @@ export class AppComponent {
   onRelayConfig() {
     let data = this.relayConfig.value as RelayConfigType
     let dataToSend = " "
-    dataToSend += 'relay1' + data.relay1 + ":"
-    dataToSend += 'relay2' + data.relay2 + ":"
-    dataToSend += 'relay3' + data.relay3 + ":"
-    dataToSend += 'relay4' + data.relay4
-    this.ipc.send('relayconfig', dataToSend);
+    dataToSend += 'R1#' + (data.relay1 === 'on' ? '1' : '0') + ";"
+    dataToSend += 'R2#' + (data.relay2 === 'on' ? '1' : '0') + ";"
+    dataToSend += 'R3#' + (data.relay3 === 'on' ? '1' : '0') + ";"
+    dataToSend += 'R4#' + (data.relay4 === 'on' ? '1' : '0')
+
+    //alert(dataToSend)
+    this.ipc.send('relayconfig', 'manual$' + dataToSend);
   }
 
-
-  private createRelayControl(): FormGroup {
+  private relayScheduleCreateControls(): FormGroup {
     return this.formBuilder.group({
-      set1: this.createSet(),
-      set2: this.createSet(),
-      set3: this.createSet(),
-      set4: this.createSet(),
+      set1: this.relayScheduleCreateRelaySet(),
+      set2: this.relayScheduleCreateRelaySet(),
+      set3: this.relayScheduleCreateRelaySet(),
+      set4: this.relayScheduleCreateRelaySet(),
     });
   }
 
-  // Function to create a set control (similar to your createSet function)
-  private createSet(): FormGroup {
+  private relayScheduleCreateRelaySet(): FormGroup {
     return this.formBuilder.group({
       isChecked: [{ value: false, disabled: false }],
-      time: [{ value: '00:00', disabled: true }],
+      time: [{ value: '', disabled: true }, [Validators.required, Validators.pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)]],
       state: [{ value: 'off', disabled: true }],
     });
   }
 
-  disableRelaySchedule() {
-    for (let eachRelayKey of Object.keys(this.scheduling.controls)) {
-      const eachRelayGroup = this.scheduling.get(eachRelayKey) as FormGroup;
+  relayScheduleDisable() {
+    for (let eachRelayKey of Object.keys(this.schedule.controls)) {
+      const eachRelayGroup = this.schedule.get(eachRelayKey) as FormGroup;
 
       for (let setKey of Object.keys(eachRelayGroup.controls)) {
         const eachControlGroup = eachRelayGroup.get(setKey) as FormGroup;
@@ -142,9 +139,9 @@ export class AppComponent {
     }
   }
 
-  enableRelaySchedule() {
-    for (let eachRelayKey of Object.keys(this.scheduling.controls)) {
-      const eachRelayGroup = this.scheduling.get(eachRelayKey) as FormGroup;
+  relayScheduleEnable() {
+    for (let eachRelayKey of Object.keys(this.schedule.controls)) {
+      const eachRelayGroup = this.schedule.get(eachRelayKey) as FormGroup;
 
       for (let setKey of Object.keys(eachRelayGroup.controls)) {
         const eachControlGroup = eachRelayGroup.get(setKey) as FormGroup;
@@ -156,38 +153,58 @@ export class AppComponent {
     }
   }
 
-  onRelaySchedule() {
+  relayScheduleReset() {
+    for (let eachRelayKey of Object.keys(this.schedule.controls)) {
+      const eachRelayGroup = this.schedule.get(eachRelayKey) as FormGroup;
+
+      for (let setKey of Object.keys(eachRelayGroup.controls)) {
+        const eachControlGroup = eachRelayGroup.get(setKey) as FormGroup;
+
+        eachControlGroup.get('isChecked')?.setValue(0);
+        eachControlGroup.get('time')?.setValue('00:00');
+        eachControlGroup.get('state')?.setValue('off');
+
+        //eachControlGroup.get('isChecked')?.disable();
+        eachControlGroup.get('time')?.disable();
+        eachControlGroup.get('state')?.disable();
+      }
+    }
+  }
+
+  onRelayScheduleConfig() {
     let dataToSend = '';
+    let isAllValid = true
 
-    // Iterate through relay groups in scheduling form
-    for (let eachRelayKey of Object.keys(this.scheduling.controls)) {
-      const eachRelayGroup = this.scheduling.get(eachRelayKey) as FormGroup;
+    for (let eachRelayKey of Object.keys(this.schedule.controls)) {
+      const eachRelayGroup = this.schedule.get(eachRelayKey) as FormGroup;
 
-      // Check if the relay is enabled
       if (eachRelayGroup.enabled) {
         const relayName = `R${eachRelayKey.slice(-1)}`;
 
-        // Iterate through sets in each relay group
         for (let setKey of Object.keys(eachRelayGroup.controls)) {
           const eachControlGroup = eachRelayGroup.get(setKey) as FormGroup;
 
-          // Check if the set is enabled and has valid data
+          if (!eachControlGroup.valid) {
+            isAllValid = false;
+          }
           if (eachControlGroup.enabled && eachControlGroup.valid) {
             const isChecked = eachControlGroup.get('isChecked')?.value ? '1' : '0';
-            const time = eachControlGroup.get('time')?.value;
-            const state = eachControlGroup.get('state')?.value === 'on' ? '1' : '0';
+            if (isChecked == '1') {
+              const time = eachControlGroup.get('time')?.value;
+              const state = eachControlGroup.get('state')?.value === 'on' ? '1' : '0';
 
-            // Format the data and append to the result string
-            dataToSend += `${relayName}#${isChecked}#${time}#${state};`;
+              dataToSend += `${relayName}#${time}#${state};`;
+            }
           }
         }
       }
-
-      alert(dataToSend)
     }
 
-    // Send the formatted data to the API
-    this.ipc.send('relayconfig', dataToSend);
+    if (isAllValid) {
+      //alert(dataToSend)
+      this.ipc.send('relayconfig', 'schedule$' + dataToSend);
+    }
+
   }
 
   ngOnDestroy() {

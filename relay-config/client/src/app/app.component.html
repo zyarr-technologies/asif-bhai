@@ -61,23 +61,28 @@
       </div>
       <div>
         <button mat-raised-button [disabled]="!isConnected" (click)="onRelayConfig()" color="primary"
-          class="relayConfigButton">Configure</button>
+          class="config-button" class="config-button">Configure</button>
       </div>
     </form>
 
   </mat-card-content>
 </mat-card>
 
-<!-- scheduling-->
+<!-- schedule-->
 
 <mat-card>
   <mat-card-header>
-    <mat-card-title>Scheduling</mat-card-title>
+    <mat-card-title>schedule</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="scheduling" class="schedulingForm">
+    <form [formGroup]="schedule" class="scheduleConfigForm">
       <app-relay-control *ngFor="let relayControl of relayScheduleControls" [relayGroup]="relayControl.formGroup"
         [relayName]="relayControl.name"></app-relay-control>
     </form>
   </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button [disabled]="!isConnected" (click)="onRelayScheduleConfig()" color="primary"
+      class="config-button">Configure</button>
+    <button mat-raised-button (click)="relayScheduleReset()" color="primary" class="config-button">Reset</button>
+  </mat-card-actions>
 </mat-card>

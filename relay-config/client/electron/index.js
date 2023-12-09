@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
 const url = require("url");
 //var net = require('net');
@@ -10,13 +10,19 @@ const { Buffer } = require('node:buffer');
 let win;
 
 function createWindow() {
+
+    const primaryDisplay = screen.getPrimaryDisplay()
+    const { width, height } = primaryDisplay.workAreaSize
+    let factor = primaryDisplay.scaleFactor;
+
     // Create the browser window.
     win = new BrowserWindow({
-        width: 1000,
-        height: 500,
+        width,
+        height,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            //zoomFactor: 1.0 / factor
         },
     });
 
