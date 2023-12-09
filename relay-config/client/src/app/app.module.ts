@@ -10,11 +10,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { RelayControlComponent } from './relay-control/relay-control.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    RelayControlComponent
   ],
   imports: [
     BrowserModule,
@@ -24,6 +26,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatButtonToggleModule,
   ],
   providers: [],
