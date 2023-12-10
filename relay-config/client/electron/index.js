@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, dialog, ipcRenderer } = require("electron");
 const path = require("path");
 const url = require("url");
 //var net = require('net');
@@ -56,6 +56,7 @@ app.on("ready", createWindow);
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
+    udpClient.close();
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== "darwin") {
@@ -64,75 +65,70 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
     if (win === null) {
         createWindow();
     }
 });
 
-//var tcpClient = new net.Socket();
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-var remotePort = 0
-var remoteAddr = ""
 ipcMain.on("connect", (event, ...arg) => {
     console.log("connect" + arg);
     var data = JSON.parse(arg)
-    var dataBuffer = new Buffer.from(JSON.stringify(data));
-
-    // tcpClient.connect(data.port, data.ipaddress, function () {
-    //     console.log('Connected...');
-    // });
-    const udpClient = dgram.createSocket('udp4');
-    udpClient.send(dataBuffer, data.port, data.ipaddress, (err) => {
-        if (err) {
-            console.error(`Failed to send packet to => ${data.ipaddress}:${data.port}`)
-        } else {
-            console.log(`Connected to server => ${data.ipaddress}:${data.port}`)
-            remotePort = data.port
-            remoteAddr = data.ipaddress
-            udpClient.on("acknowledgement", (message, info) => {
-                console.log(`Acknowledgement from:  => ${data.ipaddress}:${data.port}`)
-                udpClient.close()
-            })
-        }
-    })
+    serverConnect(data);
 });
 
 ipcMain.on("disconnect", (event, ...arg) => {
     console.log("disconnect" + arg);
-    // if (!tcpClient.closed) {
-    //     tcpClient.end();
-    // }
     console.log(`Disconnected from server => ${remoteAddr}:${remotePort}`)
     remotePort = 0
     remoteAddr = ""
 })
 
 ipcMain.on("relayconfig", (event, ...arg) => {
-    //if (!tcpClient.closed) {
+    serverMessage(arg);
+});
+
+var remotePort = 0
+var remoteAddr = ""
+const udpClient = dgram.createSocket('udp4');
+udpClient.on("message", (message, info) => {
+    console.log(`Acknowledgement from:  => ${message}`)
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Server Acknowledgment',
+        message: `Server message: ${message.toString()}`,
+        buttons: ['OK'],
+    });
+
+})
+
+function serverConnect(data) {
+    var dataBuffer = new Buffer.from(JSON.stringify(data));
+    udpClient.send(dataBuffer, data.port, data.ipaddress, (err) => {
+        if (err) {
+            console.error(`Failed to send packet to => ${data.ipaddress}:${data.port}`);
+        } else {
+            console.log(`Connected to server => ${data.ipaddress}:${data.port}`);
+            remotePort = data.port;
+            remoteAddr = data.ipaddress;
+        }
+    });
+}
+
+function serverMessage(arg) {
     if (remotePort != 0 && remoteAddr != "") {
         //var data = JSON.parse(arg)
         //var dataBuffer = new Buffer.from(JSON.stringify(data));
-        var data = arg[0]
+        var data = arg[0];
         var dataBuffer = new Buffer.from(data);
 
         //tcpClient.write(dataBuffer);
-        const udpClient = dgram.createSocket('udp4');
         udpClient.send(dataBuffer, remotePort, remoteAddr, (err) => {
             if (err) {
-                console.error(`Failed to send packet to => ${remotePort}:${remotePort}`)
+                console.error(`Failed to send packet to => ${remotePort}:${remotePort}`);
             } else {
-                console.log(`Sending relay config:  ${data} => ${remotePort}:${remotePort}`)
-                udpClient.on("acknowledgement", (message, info) => {
-                    dialog.showErrorBox('Acknowledgement', `Acknowledgement from:  => ${data.ipaddress}:${data.port}`)
-                    console.log(`Acknowledgement from:  => ${remotePort}:${remotePort}`)
-                    udpClient.close()
-                })
+                console.log(`Sending relay config:  ${data} => ${remotePort}:${remotePort}`);
             }
-        })
-
+        });
     }
-});
+}
+

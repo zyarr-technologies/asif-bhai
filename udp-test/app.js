@@ -1,6 +1,6 @@
 const UDP = require('dgram')
 const server = UDP.createSocket('udp4')
-const port = 12345
+const port = 12346
 
 server.on('listening', () => {
     const address = server.address()
@@ -9,7 +9,7 @@ server.on('listening', () => {
 
 server.on('message', (message, info) => {
     console.log('Message: ', message.toString())
-    const response = `acknowledgement`
+    const response = message
     server.send(response, info.port, info.address, (err) => {
         if (err) {
             console.error('Failed to send response !!')
