@@ -95,7 +95,8 @@ udpClient.on("message", (message, info) => {
     dialog.showMessageBox({
         type: 'info',
         title: 'Server Acknowledgment',
-        message: `Server message: ${message.toString()}`,
+        message: `Server message:`,
+        detail: `${message.toString()}`,
         buttons: ['OK'],
     });
 
