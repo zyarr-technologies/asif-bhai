@@ -110,6 +110,8 @@ export class AppComponent {
       set2: this.relayScheduleCreateRelaySet(),
       set3: this.relayScheduleCreateRelaySet(),
       set4: this.relayScheduleCreateRelaySet(),
+      set5: this.relayScheduleCreateRelaySet(),
+      set6: this.relayScheduleCreateRelaySet(),
     });
   }
 

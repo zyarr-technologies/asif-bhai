@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, dialog } = require("electron");
 const path = require("path");
 const url = require("url");
 //var net = require('net');
@@ -127,6 +127,7 @@ ipcMain.on("relayconfig", (event, ...arg) => {
             } else {
                 console.log(`Sending relay config:  ${data} => ${remotePort}:${remotePort}`)
                 udpClient.on("acknowledgement", (message, info) => {
+                    dialog.showErrorBox('Acknowledgement', `Acknowledgement from:  => ${data.ipaddress}:${data.port}`)
                     console.log(`Acknowledgement from:  => ${remotePort}:${remotePort}`)
                     udpClient.close()
                 })

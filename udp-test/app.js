@@ -9,7 +9,7 @@ server.on('listening', () => {
 
 server.on('message', (message, info) => {
     console.log('Message: ', message.toString())
-    const response = message
+    const response = `acknowledgement`
     server.send(response, info.port, info.address, (err) => {
         if (err) {
             console.error('Failed to send response !!')

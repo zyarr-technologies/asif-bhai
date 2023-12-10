@@ -5,7 +5,7 @@
         </mat-card-header>
         <mat-card-content>
             <!-- Repeatable set of controls for each relay -->
-            <div *ngFor="let setKey of ['set1', 'set2', 'set3', 'set4']" formGroupName="{{ setKey }}" class="set-group">
+            <div *ngFor="let setKey of ['set1', 'set2', 'set3', 'set4', 'set5', 'set6']" formGroupName="{{ setKey }}" class="set-group">
                 <mat-checkbox formControlName="isChecked" (click)="onCheckboxChange(setKey)"> </mat-checkbox>
 
                 <mat-form-field>
