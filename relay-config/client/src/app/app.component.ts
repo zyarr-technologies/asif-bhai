@@ -94,7 +94,7 @@ export class AppComponent {
 
   onRelayConfig() {
     let data = this.relayConfig.value as RelayConfigType
-    let dataToSend = " "
+    let dataToSend = ""
     dataToSend += 'R1#' + (data.relay1 === 'on' ? '1' : '0') + ";"
     dataToSend += 'R2#' + (data.relay2 === 'on' ? '1' : '0') + ";"
     dataToSend += 'R3#' + (data.relay3 === 'on' ? '1' : '0') + ";"
@@ -204,7 +204,7 @@ export class AppComponent {
 
     if (isAllValid) {
       //alert(dataToSend)
-      this.ipc.send('relayconfig', 'schedule$' + dataToSend);
+      this.ipc.send('relayconfig', 'schedule$' + dataToSend + '@@');
     }
 
   }
